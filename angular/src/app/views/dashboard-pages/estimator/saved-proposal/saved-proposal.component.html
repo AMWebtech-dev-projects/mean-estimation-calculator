@@ -1,0 +1,61 @@
+<div class="d-flex flex-row">
+  <div class="col-12">
+    <h4 class="opacity-50">Manage Saved Calculations</h4>
+    <hr />
+  </div>
+</div>
+<div class="container-fluid app-region bg-white py-3 dataDisplaySection">
+  <table [dtOptions]="dtOptions" datatable [dtTrigger]="dtTrigger"
+    class="table table-bordered table-hover table-striped">
+    <thead>
+      <tr class="text-nowrap">
+        <th>S.No</th>
+        <th>Project Name</th>
+        <th>Type</th>
+        <th>Tag</th>
+        <th>Created At</th>
+        <th class="text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="text-wrap">
+      <tr *ngFor="let proposal of proposalsList; let i=index">
+        <th scope="row">{{i+1}}</th>
+        <td>{{proposal.projectName}}</td>
+        <td>{{proposal.type}}</td>
+        <td>{{proposal.tags}}</td>
+        <td>{{proposal.createdAt | date:'d/M/yyyy'}}</td>
+        <td class="text-center">
+          <div class="d-flex justify-content-center">
+            <button type="button" class="btn btn-sm edit me-1" (click)="editProposal(proposal)"><i
+                class="far fa-edit"></i></button>
+            <button type="button" class="btn btn-sm delete" (click)="showDeleteModal(proposal)"><i
+                class="far fa-trash-alt"></i></button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div bsModal #deleteProposalModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="myModalLabel" aria-hidden="true" [config]="{backdrop: 'static', keyboard: false, animated: true}">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"><i class="fa fa-trash"></i> Delete Proposal</h4>
+        <button type="button" class="close" (click)="closeModel()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h4>Are you sure want to delete this Proposal?</h4>
+        <p>
+          <b>Proposal :</b> {{savedProposalInfo.projectName}} <br />
+        </p>
+      </div>
+      <div class="modal-footer border-top-0 d-flex justify-content-start">
+        <button type="button" class="btn btn-default me-1" (click)="closeModel()">Close</button>
+        <button type="button" class="btn btn-danger" (click)="deleteProposal()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

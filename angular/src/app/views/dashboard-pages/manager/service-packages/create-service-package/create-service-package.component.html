@@ -1,0 +1,154 @@
+<div class="d-flex flex-row">
+  <div class="col-12">
+    <h4 class="opacity-50">
+      <h4>Create Service Package</h4>
+    </h4>
+    <hr />
+  </div>
+</div>
+<!-- <pre [innerHtml]="servicePackagesForm.value | json"></pre> -->
+<div class="container-fluid app-region bg-white py-3 dataDisplaySection">
+  <div class="d-flex justify-content-end mb-3">
+    <div>
+      <button class="btn btn-sm btn-primary ms-3" (click)="reloadCurrentPage()">Back</button>
+    </div>
+  </div>
+  <form id="servicePackagesForm" role="form" [formGroup]="servicePackagesForm" (ngSubmit)="createPackage()">
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label for="servicePackage" class="form-label">Package Name {{invalidForm.servicePackage.invalid | json}}
+          <sup [class]="checkValid('servicePackage')"><i class="fas fa-star fa-xs"></i></sup>
+        </label>
+        <input type="text" class="form-control" id="servicePackage" placeholder="Enter Service Package Name"
+          name="servicePackage" characterOnly formControlName="servicePackage">
+        <p class="alert alert-danger" role="alert" *ngIf="invalidForm.servicePackage.invalid && (invalidForm.servicePackage.touched ||
+            invalidForm.servicePackage.dirty)">
+          <span *ngIf="invalidForm.servicePackage.errors.required"> Service Package is Required.</span>
+          <span *ngIf="invalidForm.servicePackage.errors.minlength"> Service Package Length should be 5 character
+            minimum.</span>
+          <span *ngIf="invalidForm.servicePackage.errors.maxlength"> Service Package Length should be 35 Character
+            max.</span>
+        </p>
+      </div>
+      <div class="col-md-6">
+        <label for="serviceId" class="form-label">Choose Service
+          <sup [class]="checkValid('serviceId')"><i class="fas fa-star fa-xs"></i></sup>
+        </label>
+
+        <select id="serviceId" class="form-select" name="serviceId" formControlName="serviceId"
+          (change)="filterListByService(servicePackagesForm?.value?.serviceId)"
+          [attr.disabled]="invalidForm.servicePackage.invalid === true ? true : null">
+          <option value="">Select Service</option>
+          <option *ngFor="let manageServices of manageServicesList; let i=index" [ngValue]="manageServices._id">
+            {{manageServices.serviceName}}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="">
+      <div class="table-responsive-lg mt-4">
+        <table class="table table-bordered table-hover table-striped">
+          <thead>
+            <tr class="text-nowrap">
+              <th>Bundle Name</th>
+              <th>Type</th>
+              <th formGroupName="essential"><label for="essential" class="form-label">Essential</label>
+                <select [attr.disabled]="!getFBList.controls.length ? true : null" id="essential" class="form-select"
+                  name="essential" formControlName="timeFrame" (change)="setResetTimeFrame('essential')">
+                  <option value="">Select</option>
+                  <option *ngFor="let essential of timeFrameBundleValues; let i=index" [ngValue]="essential">
+                    {{essential.label}}
+                  </option>
+                </select>
+              </th>
+              <th formGroupName="professional"><label for="professional" class="form-label">Professional</label>
+                <select [attr.disabled]="!getFBList.controls.length ? true : null" id="professional" class="form-select"
+                  name="professional" formControlName="timeFrame" (change)="setResetTimeFrame('professional')">
+                  <option value="">Select</option>
+                  <option *ngFor="let professional of timeFrameBundleValues; let i=index" [ngValue]="professional">
+                    {{professional.label}}
+                  </option>
+                </select>
+              </th>
+              <th formGroupName="enterprise"> <label for="enterprise" class="form-label">Enterprise</label>
+                <select [attr.disabled]="!getFBList.controls.length ? true : null" id="enterprise" class="form-select"
+                  name="enterprise" formControlName="timeFrame" (change)="setResetTimeFrame('enterprise')">
+                  <option value="">Select</option>
+                  <option *ngFor="let enterprise of timeFrameBundleValues; let i=index" [ngValue]="enterprise">
+                    {{enterprise.label}}
+                  </option>
+                </select>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let bundle of getFBList.controls; let i=index">
+              <td>{{bundle.value.serviceBundle}}</td>
+              <td>{{showType(bundle.value.type)}}</td>
+              <td><input class="form-check-input" [attr.disabled]="invalidCheck('essential.timeFrame') ? true: null"
+                  type="checkbox" id="essential_{{i}}" [(ngModel)]="bundle.value.essential"
+                  (ngModelChange)="calculations('essential')" [ngModelOptions]="{standalone: true}">
+              </td>
+              <td><input class="form-check-input" [attr.disabled]="invalidCheck('professional.timeFrame') ? true: null"
+                  type="checkbox" id="professional_{{i}}" [(ngModel)]="bundle.value.professional"
+                  (ngModelChange)="calculations('professional')" [ngModelOptions]="{standalone: true}"></td>
+              <td>
+                <input class="form-check-input" [attr.disabled]="invalidCheck('enterprise.timeFrame') ? true: null"
+                  type="checkbox" id="enterprise_{{i}}" [(ngModel)]="bundle.value.enterprise"
+                  (ngModelChange)="calculations('enterprise')" [ngModelOptions]="{standalone: true}">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-responsive-lg mt-4">
+        <table class="table table-striped table-bordered table-hover">
+          <thead>
+            <tr>
+              <th>Package Name</th>
+              <th>Essential Total</th>
+              <th>Professional Total</th>
+              <th>Enterprise Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{servicePackagesForm.value.servicePackage}}</td>
+              <td>Total : <span [ngClass]="servicePackagesForm?.value?.essential.total ? 'text-primary': 'text-danger'">{{servicePackagesForm?.value?.essential?.total
+                  ? servicePackagesForm?.value?.essential?.total :
+                  'Please Calculate First' }}</span></td>
+              <td>Total : <span
+                  [ngClass]="servicePackagesForm?.value?.professional.total ? 'text-primary': 'text-danger'">{{servicePackagesForm?.value?.professional.total
+                  ? servicePackagesForm?.value?.professional.total : 'Please Calculate First' }}</span></td>
+              <td>Total : <span
+                  [ngClass]="servicePackagesForm?.value?.enterprise.total ? 'text-primary': 'text-danger'">{{servicePackagesForm?.value?.enterprise.total
+                  ? servicePackagesForm?.value?.enterprise.total : 'Please Calculate First' }}</span></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>Fixed :
+                {{servicePackagesForm?.value?.essential.fixed ? servicePackagesForm?.value?.essential.fixed : 0}}
+              </td>
+              <td>Fixed :
+                {{servicePackagesForm.value.professional.fixed ? servicePackagesForm.value.professional.fixed : 0}}</td>
+              <td>Fixed :
+                {{servicePackagesForm.value.enterprise.fixed ? servicePackagesForm.value.enterprise.fixed : 0}}</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>Recursive : {{servicePackagesForm?.value?.essential.recursive ? servicePackagesForm?.value?.essential.recursive
+                +'*'+servicePackagesForm?.value?.essential.timeFrame.label + '/Monthly' : 0}}</td>
+              <td>Recursive : {{servicePackagesForm.value.professional.recursive ? servicePackagesForm.value.professional.recursive
+                +'*'+servicePackagesForm.value.professional.timeFrame.label + '/Monthly' : 0}}</td>
+              <td>Recursive : {{servicePackagesForm.value.enterprise.recursive ? servicePackagesForm.value.enterprise.recursive
+                +'*'+servicePackagesForm.value.enterprise.timeFrame.label + '/Monthly' : 0}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <app-alert></app-alert>
+      <button type="submit" class="btn btn-primary mt-2" [disabled]="!servicePackagesForm.valid">Save
+      </button>
+    </div>
+  </form>
+</div>

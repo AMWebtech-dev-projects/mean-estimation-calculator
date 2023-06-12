@@ -1,0 +1,180 @@
+<div class="d-flex flex-row">
+  <div class="col-12">
+    <h4 class="opacity-50">Manage Service Bundles</h4>
+    <hr />
+  </div>
+</div>
+<div class="container-fluid app-region bg-white py-3 dataDisplaySection">
+  <div class="d-flex flex-row justify-content-between mb-3">
+    <div>
+      <div class="row">
+        <h6 for="serviceId" class="col-auto form-label pt-2">Filter By Service:
+        </h6>
+        <div class="col-auto">
+          <select id="serviceId" class="form-select" name="serviceId" [(ngModel)]="filterService_id"
+            (ngModelChange)="getBundlesList()">
+            <option value="">Select Service</option>
+            <option *ngFor="let manageServices of manageServicesList; let i=index" [ngValue]="manageServices._id">
+              {{manageServices.serviceName}}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <button class="btn btn-sm btn-primary" (click)="showAddEditModal()"><i class="fas fa-plus me-2"></i>Add
+        New</button>
+    </div>
+  </div>
+
+  <table [dtOptions]="dtOptions" datatable [dtTrigger]="dtTrigger"
+    class="table table-bordered table-hover table-striped">
+    <thead>
+      <tr class="text-nowrap">
+        <th>S.No</th>
+        <th>Service Bundle</th>
+        <th>Service Name</th>
+        <th>Type</th>
+        <th>Service Price</th>
+        <th>Created At</th>
+        <th>Status</th>
+        <th class="text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="text-wrap">
+      <tr *ngFor="let manageBundle of manageBundlesList; let i=index">
+        <th scope="row">{{i+1}}</th>
+        <td>{{manageBundle.serviceBundle}}</td>
+        <td>{{showServiceName(manageBundle.serviceId)}}</td>
+        <td>{{showType(manageBundle.type)}}</td>
+        <td>{{manageBundle.servicePrice}}</td>
+        <td>{{manageBundle.createdAt | date:'d/M/yyyy'}}</td>
+        <td>
+          <ui-switch (change)="changeServiceStatus(manageBundle)" [(ngModel)]="manageBundle.status" color="#4285F4"
+            defaultBgColor="#d9d9d9" labelOn="Active" labelOff="Inactive">
+          </ui-switch>
+        </td>
+        <td class="text-center">
+          <div class="d-flex justify-content-center">
+            <button type="button" class="btn btn-sm edit me-1" (click)="showAddEditModal(manageBundle)"><i
+                class="far fa-edit"></i></button>
+            <button type="button" class="btn btn-sm delete" (click)="showDeleteModal(manageBundle)"><i
+                class="far fa-trash-alt"></i></button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- <pre [innerHtml]="manageBundlesList | json"> </pre> -->
+
+<div bsModal #addEditBundleServiceModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="myModalLabel" aria-hidden="true" [config]="{backdrop: 'static',  keyboard: false, animated: true}">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{manageBundlesForm?.value?._id ? 'Edit' : 'Add'}} Service Bundle</h4>
+        <button type="button" class="close" aria-label="Close" (click)="closeModel()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="manageBundlesForm" role="form" [formGroup]="manageBundlesForm" (ngSubmit)="addService()">
+        <div class="modal-body">
+          <div class="row row-xs align-items-center mg-b-20">
+            <div class="mb-3">
+              <label for="serviceId" class="form-label">Service Name
+                <sup [ngClass]="checkvalidation('serviceId')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <select id="serviceId" class="form-select" name="serviceId" formControlName="serviceId">
+                <option value="">Select Service</option>
+                <option *ngFor="let manageServices of manageServicesList; let i=index" [ngValue]="manageServices._id">
+                  {{manageServices.serviceName}}
+                </option>
+              </select>
+              <p class="alert alert-danger mt-1 mb-0" role="alert"
+                *ngIf="invalidForm.serviceId.invalid && (invalidForm.serviceId.dirty || invalidForm.serviceId.touched)">
+                <span *ngIf="invalidForm.serviceId.errors.required"> Service is Required. </span>
+              </p>
+            </div>
+            <div class="mb-3">
+              <label for="serviceBundle" class="form-label"> Service Bundle
+                <sup [ngClass]="checkvalidation('serviceBundle')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" maxlength="20" id="serviceBundle"
+                placeholder="Enter Service Bundle Name" name="serviceBundle" characterOnly
+                formControlName="serviceBundle">
+              <p class="alert alert-danger mt-1 mb-0" role="alert"
+                *ngIf="invalidForm.serviceBundle.invalid && (invalidForm.serviceBundle.dirty || invalidForm.serviceBundle.touched)">
+                <span *ngIf="invalidForm.serviceBundle.errors.required"> Service is Required. </span>
+                <span *ngIf="invalidForm.serviceBundle.errors.minlength"> Service minimum length 3 is Required. </span>
+              </p>
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="checkbundleExists">
+                This Service Bundle Already Exists, please try another one.
+              </p>
+            </div>
+            <div class="mb-3">
+              <label for="type" class="form-label">Type
+                <sup [ngClass]="checkvalidation('type')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <select id="type" class="form-select" name="type" formControlName="type">
+                <option value="">Choose Type</option>
+                <option *ngFor="let type of typeList; let i=index" [ngValue]="type.value">
+                  {{type.label}}
+                </option>
+              </select>
+              <p class="alert alert-danger mt-1 mb-0" role="alert"
+                *ngIf="invalidForm.type.invalid && (invalidForm.type.dirty || invalidForm.type.touched)">
+                <span *ngIf="invalidForm.type.errors.required"> Type is Required. </span>
+              </p>
+            </div>
+            <div class="mb-3">
+              <label for="servicePrice" class="form-label">Service Price
+                <sup [ngClass]="checkvalidation('servicePrice')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="servicePrice" numbersOnly placeholder="Enter Service Price"
+                name="servicePrice" formControlName="servicePrice">
+              <p class="alert alert-danger mt-1 mb-0" role="alert"
+                *ngIf="invalidForm.servicePrice.invalid && (invalidForm.servicePrice.dirty || invalidForm.servicePrice.touched)">
+                <span *ngIf="invalidForm.servicePrice.errors.required"> Service Price is Required. </span>
+                <span *ngIf="invalidForm.servicePrice.errors.min"> Service Price should be greater then 0. </span>
+              </p>
+            </div>
+          </div>
+        </div>
+        <app-alert></app-alert>
+        <div class="modal-footer border-top-0 justify-content-start">
+          <button type="submit" class="btn btn-primary" [disabled]="manageBundlesForm.invalid">{{manageBundlesForm?.value._id ? 'Update' :
+            'Add'}}
+          </button>
+        </div>
+      </form>
+      <!-- <pre [innerHtml]="manageBundlesForm.value | json"> </pre> -->
+    </div>
+  </div>
+</div>
+
+<div bsModal #deleteBundleServiceModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="myModalLabel" aria-hidden="true" [config]="{backdrop: 'static', keyboard: false, animated: true}">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"><i class="fa fa-trash"></i> Delete Service Bundle</h4>
+        <button type="button" class="close" (click)="closeModel()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h4>Are you sure want to delete this Service Bundle?</h4>
+        <p>
+          <b>Service Bundle :</b> {{manageBundlesInfo.serviceBundle}} <br />
+        </p>
+      </div>
+      <div class="modal-footer border-top-0 d-flex justify-content-start">
+        <button type="button" class="btn btn-default me-1" (click)="closeModel()">Close</button>
+        <button type="button" class="btn btn-danger" (click)="deleteService()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

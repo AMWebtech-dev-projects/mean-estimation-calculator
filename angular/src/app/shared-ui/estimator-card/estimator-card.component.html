@@ -1,0 +1,325 @@
+<div class="d-flex flex-grow-1">
+  <div class="text-center d-flex flex-grow-1 card border-success">
+    <div class="card-header">Estimation</div>
+    <div class="card-body" style="background-color: rgb(153, 243, 189);">
+
+      <div *ngIf="!calculationData.validate">
+        <h5 class="card-text">Please Provide Complete &amp; Proper Information</h5>
+      </div>
+      <!--  hourlyWise Calculation -->
+
+      <div *ngIf="calculationData.type === calculationType.hourly">
+        <div *ngIf="calculationData.validate">
+          <p class="h5 card-text">Estimation Price : {{calculationData.currencies.currencySymbol}}
+            {{calculationData.finalPriceWithDiscount}} / hr</p>
+          <p class="card-text">with {{calculationData.discount}} % Discount</p>
+          <p class="card-text">Total Hours : {{calculationData.timeIndex}} <br>Total Cost :
+            {{calculationData.currencies.currencySymbol}} {{calculationData.totalCost}}
+          </p>
+        </div>
+
+        <div class="row d-flex justify-content-around mt-3">
+          <div class="col-4 px-0" *ngIf="calculationData.validate">
+            <button *ngIf="!enableDiscount" type="button" class="btn btn-sm btn-warning"
+              (click)="toggleShow('discount')"><i class="fas fa-percentage me-1"></i>
+              Discount
+            </button>
+            <input *ngIf="enableDiscount" name="discount" [(ngModel)]="calculationData.discount"
+              (ngModelChange)='callCalculation();discountLimit()' placeholder="Enter in %" min="0" type="number"
+              class="form-control form-control-sm">
+            <div class="form-text"> Max Discount : {{calculationData.selectedService.discount}}%</div>
+          </div>
+          <div class="col-4 px-0">
+            <button type="button" class="btn btn-sm btn-primary"
+              [disabled]="!calculationData.validate || calculationData.discount > calculationData.selectedService.discount"
+              (click)='openCalculationModal()'><i class="fas fa-file-download me-1"></i>
+              Proceed
+            </button>
+          </div>
+          <div class="col-4 px-0" *ngIf="calculationData.validate">
+            <button *ngIf="!enableCurrency" type="button" class="btn btn-sm btn-danger"
+              (click)="toggleShow('currency')"><i class="fas fa-dollar-sign me-1"></i>
+              Currency
+            </button>
+
+            <select *ngIf="enableCurrency" id="currency" class="form-select form-select-sm" name="currency"
+              placeholder="$" [(ngModel)]="calculationData.currencies" (ngModelChange)='callCalculation()'>
+              <!-- <option value="">Select </option> -->
+              <option *ngFor="let currency of currenciesList; let i=index" [ngValue]="currency">
+                {{currency.currencySymbol}}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!--  hourlyWise Calculation -->
+
+      <!--  resourcesWise Calculation -->
+      <div *ngIf="calculationData.type === calculationType.resources">
+        <div *ngIf="calculationData.validate">
+          <p class="h5 card-text">Estimation Price : {{calculationData.currencies.currencySymbol}}
+            {{calculationData.finalPriceWithDiscount}} /Resource/Month</p>
+          <p class="card-text">with {{calculationData.discount}} % Discount</p>
+          <p class="card-text">Total Months: {{calculationData.months}}
+            <br> Total No. of Resources {{calculationData.resources}}
+            <br>Total Monthly Cost :
+            {{calculationData.currencies.currencySymbol}} {{calculationData.totalMonthlyCost}}
+            <br>Total Project Cost : {{calculationData.currencies.currencySymbol}} {{calculationData.totalProjectCost}}
+          </p>
+        </div>
+
+        <div class="row d-flex justify-content-around mt-3">
+          <div class="col-4 px-0" *ngIf="calculationData.validate">
+            <button *ngIf="!enableDiscount" type="button" class="btn btn-sm btn-warning"
+              (click)="toggleShow('discount')"><i class="fas fa-percentage me-1"></i>
+              Discount
+            </button>
+            <input *ngIf="enableDiscount" name="discount" [(ngModel)]="calculationData.discount"
+              (ngModelChange)='callCalculation();discountLimit()' placeholder="Enter in %" min="0" type="number"
+              class="form-control form-control-sm">
+            <div class="form-text"> Max Discount : {{calculationData.selectedService.discount}}%</div>
+          </div>
+          <div class="col-4 px-0">
+            <button type="button" class="btn btn-sm btn-primary"
+              [disabled]="!calculationData.validate || calculationData.discount > calculationData.selectedService.discount "
+              (click)='openCalculationModal()'><i class="fas fa-file-download me-1"></i>
+              Proceed
+            </button>
+          </div>
+          <div class="col-4 px-0" *ngIf="calculationData.validate">
+            <button *ngIf="!enableCurrency" type="button" class="btn btn-sm btn-danger"
+              (click)="toggleShow('currency')"><i class="fas fa-dollar-sign me-1"></i>
+              Currency
+            </button>
+
+            <select *ngIf="enableCurrency" id="currency" class="form-select form-select-sm" name="currency"
+              [(ngModel)]="calculationData.currencies" (ngModelChange)='callCalculation()'>
+              <!-- <option value="">Select </option> -->
+              <option *ngFor="let currency of currenciesList; let i=index" [ngValue]="currency">
+                {{currency.currencySymbol}}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!--  resourcesWise Calculation -->
+
+      <!--  bundleWise Calculation -->
+      <div *ngIf="calculationData.type === calculationType.bundle">
+        <div *ngIf="calculationData.validate" class="table-responsive mt-1">
+          <table class="table table-bordered table-hover table-striped">
+            <thead>
+              <tr class="text-nowrap">
+                <th>#</th>
+                <th>Bundle Name</th>
+                <th>Type</th>
+                <th>Time Period</th>
+                <th>Price in {{calculationData.currencies.currencySymbol}}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngFor="let bundle of calculationData.filterBundlesList; let i=index">
+                <tr *ngIf="bundle.isSelected">
+                  <td>{{i+1}}</td>
+                  <td>{{bundle.serviceBundle}}</td>
+                  <td>{{showType(bundle.type)}}</td>
+                  <td>{{bundle.type === 2 ? calculationData.timeFrame.label : '_'}} </td>
+                  <td>{{roundOffPrice(bundle)}}</td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="calculationData.validate">
+          <p class="h5 card-text">Estimation Price : {{calculationData.currencies.currencySymbol}}
+            {{calculationData.finalPriceWithDiscount}}</p>
+          <p class="card-text">with {{calculationData.discount}} % Discount</p>
+        </div>
+
+        <div class="row d-flex justify-content-around mt-3">
+          <div class="col-4 px-0" *ngIf="calculationData.validate">
+            <button *ngIf="!enableDiscount" type="button" class="btn btn-sm btn-warning"
+              (click)="toggleShow('discount')"><i class="fas fa-percentage me-1"></i>
+              Discount
+            </button>
+            <input *ngIf="enableDiscount" name="discount" [(ngModel)]="calculationData.discount"
+              (ngModelChange)='callCalculation();discountLimit()' placeholder="Enter in %" min="0" type="number"
+              class="form-control form-control-sm">
+            <div class="form-text"> Max Discount : {{calculationData.selectedService.discount}}%</div>
+          </div>
+          <div class="col-4 px-0">
+            <button type="button" class="btn btn-sm btn-primary"
+              [disabled]="!calculationData.validate || calculationData.discount > calculationData.selectedService.discount "
+              (click)='openCalculationModal()'><i class="fas fa-file-download me-1"></i>
+              Proceed
+            </button>
+          </div>
+          <div class="col-4 px-0" *ngIf="calculationData.validate">
+            <button *ngIf="!enableCurrency" type="button" class="btn btn-sm btn-danger"
+              (click)="toggleShow('currency')"><i class="fas fa-dollar-sign me-1"></i>
+              Currency
+            </button>
+
+            <select *ngIf="enableCurrency" id="currency" class="form-select form-select-sm" name="currency"
+              [(ngModel)]="calculationData.currencies" (ngModelChange)='callCalculation()'>
+              <!-- <option value="">Select </option> -->
+              <option *ngFor="let currency of currenciesList; let i=index" [ngValue]="currency">
+                {{currency.currencySymbol}}
+              </option>
+            </select>
+          </div>
+        </div>
+        <!--  bundleWise Calculation -->
+
+      </div>
+      <!--  bundleWise Calculation -->
+
+      <!-- packageWise -->
+      <div *ngIf="calculationData.type === calculationType.package">
+        <div *ngIf="calculationData.validate" class="table-responsive mt-1">
+          <table class="table table-bordered table-hover table-striped">
+            <thead>
+              <tr class="text-nowrap">
+                <th>#</th>
+                <th>Package Name</th>
+                <th>Essential</th>
+                <th>Professional</th>
+                <th>Enterprise</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngIf="calculationData.selectedPackage">
+                <tr>
+                  <td>{{1}}</td>
+                  <td>{{calculationData.selectedPackage.servicePackage}}</td>
+                  <td>{{calculationData.selectedPackage.essential}}</td>
+                  <td>{{calculationData.selectedPackage.professional}} </td>
+                  <td>{{calculationData.selectedPackage.enterprise}} </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+        <!-- <div *ngIf="calculationData.validate">
+          <p class="h5 card-text">Estimation Price : {{calculationData.currencies.currencySymbol}}
+            {{calculationData.finalPriceWithDiscount}}</p>
+          <p class="card-text">with {{calculationData.discount}} % Discount</p>
+        </div> -->
+        <div class="row d-flex justify-content-around mt-3">
+          <div class="col-4 px-0" *ngIf="calculationData.validate">
+            <button *ngIf="!enableDiscount" type="button" class="btn btn-sm btn-warning"
+              (click)="toggleShow('discount')"><i class="fas fa-percentage me-1"></i>
+              Discount
+            </button>
+            <input *ngIf="enableDiscount" name="discount" [(ngModel)]="calculationData.discount"
+              (ngModelChange)='callCalculation();discountLimit()' placeholder="Enter in %" min="0" type="number"
+              class="form-control form-control-sm">
+            <div class="form-text"> Max Discount : {{calculationData.selectedService.discount}}%</div>
+          </div>
+          <div class="col-4 px-0">
+            <button type="button" class="btn btn-sm btn-primary"
+              [disabled]="!calculationData.validate || calculationData.discount > calculationData.selectedService.discount "
+              (click)='openCalculationModal()'><i class="fas fa-file-download me-1"></i>
+              Proceed
+            </button>
+          </div>
+          <div class="col-4 px-0" *ngIf="calculationData.validate">
+            <button *ngIf="!enableCurrency" type="button" class="btn btn-sm btn-danger"
+              (click)="toggleShow('currency')"><i class="fas fa-dollar-sign me-1"></i>
+              Currency
+            </button>
+
+            <select *ngIf="enableCurrency" id="currency" class="form-select form-select-sm" name="currency"
+              [(ngModel)]="calculationData.currencies" (ngModelChange)='callCalculation()'>
+              <!-- <option value="">Select </option> -->
+              <option *ngFor="let currency of currenciesList; let i=index" [ngValue]="currency">
+                {{currency.currencySymbol}}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- packageWise -->
+
+      <!-- moduleWise Calculation -->
+      <div *ngIf="calculationData.type === calculationType.module">
+        <div *ngIf="calculationData.validate">
+          <div *ngFor="let user of calculationData.userwise; let i=index" class="table-responsive mt-1">
+            <div *ngIf="user.userType">
+              <h6 class="card-title text-start">User type: {{user.userType}}</h6>
+              <table class="table table-bordered table-hover table-striped">
+                <thead>
+                  <tr class="text-nowrap">
+                    <th>#</th>
+                    <th>Service Modules</th>
+                    <th>Unit</th>
+                    <th>Total Time Period in Hours</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <ng-container *ngFor="let modules of user.serviceModulesList; let i=index">
+                    <tr *ngIf="modules.isSelected">
+                      <td>{{i+1}}</td>
+                      <td>{{modules.serviceModule}}</td>
+                      <td>{{modules.unit ? modules.unit : 1}}</td>
+                      <td>{{modules.timeRequired * modules.unit ? modules.timeRequired * modules.unit :
+                        modules.timeRequired * 1}}</td>
+                    </tr>
+                  </ng-container>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+
+        <div *ngIf="calculationData.validate">
+          <p class="mb-0"> <b>Estimation Hours :</b> {{calculationData.totalModuleDays}} </p>
+          <p class="mb-0"> <b>Estimation Approx Days :</b> {{calculationData.approxDayCal}} </p>
+          <p class="h5 card-text">Estimation Price : {{calculationData.currencies.currencySymbol}}
+            {{calculationData.finalPriceWithDiscount}}</p>
+          <p class="card-text">with {{calculationData.discount}} % Discount</p>
+        </div>
+
+        <div class="row d-flex justify-content-around mt-3">
+          <div class="col-4 px-0" *ngIf="calculationData.validate">
+            <button *ngIf="!enableDiscount" type="button" class="btn btn-sm btn-warning"
+              (click)="toggleShow('discount')"><i class="fas fa-percentage me-1"></i>
+              Discount
+            </button>
+            <input *ngIf="enableDiscount" name="discount" [(ngModel)]="calculationData.discount"
+              (ngModelChange)='callCalculation();discountLimit()' placeholder="Enter in %" min="0" type="number"
+              class="form-control form-control-sm">
+            <div class="form-text"> Max Discount : {{calculationData.selectedService.discount}}%</div>
+          </div>
+          <div class="col-4 px-0">
+            <button *ngIf="calculationData.type !== 'module'" type="button" class="btn btn-sm btn-primary"
+              [disabled]="!calculationData.validate || calculationData.discount > calculationData.selectedService.discount "
+              (click)='openCalculationModal()'><i class="fas fa-file-download me-1"></i>
+              Proceed
+            </button>
+          </div>
+          <div class="col-4 px-0" *ngIf="calculationData.validate">
+            <button *ngIf="!enableCurrency" type="button" class="btn btn-sm btn-danger"
+              (click)="toggleShow('currency')"><i class="fas fa-dollar-sign me-1"></i>
+              Currency
+            </button>
+
+            <select *ngIf="enableCurrency" id="currency" class="form-select form-select-sm" name="currency"
+              [(ngModel)]="calculationData.currencies" (ngModelChange)='callCalculation()'>
+              <!-- <option value="">Select </option> -->
+              <option *ngFor="let currency of currenciesList; let i=index" [ngValue]="currency">
+                {{currency.currencySymbol}}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- moduleWise Calculation -->
+    </div>
+    <div class="text-muted card-footer"> AM Webtech Pvt.Ltd.</div>
+  </div>
+
+</div>
+<!-- <pre [innerHtml]="calculationData | json"></pre> -->

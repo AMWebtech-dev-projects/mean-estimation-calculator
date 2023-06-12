@@ -1,0 +1,114 @@
+<div id="hourlyTemplate" style="min-height: 1500px; width: 1070px; position: relative;
+margin: 0px auto;">
+  <div>
+    <img src="assets/img/brand/header.png" alt="header" style="width: 100%;margin-top: 10px">
+    <div style="margin: 5px 20px; font-weight: 400; font-family: roboto;">
+      <h3 class="d-flex justify-content-center">Estimation for Project</h3>
+      <div class="d-flex justify-content-between mt-5 h5 mobile-align">
+        <div><b>Dear </b><b>{{calculationData.prospectName}}</b>,</div>
+        <div><b> Issued Date : {{calculationData.todayDate}}</b></div>
+      </div><br>
+      <div class="text-justify h5">Thank you for considering the collaboration with AM Webtech for the Project
+        <b>{{calculationData.projectName}}</b>. We ensure the accomplishment of this project fitting the times. AM
+        Webtech
+        has a record of
+        identifying key Business objectives, client requisite, and attaining the objective.
+      </div><br>
+
+      <!-- hourlyWise -->
+      <div *ngIf="calculationData.type === calculationType.hourly">
+        <div class="h5"><b>Contract Details </b>: This contract is made for hiring of
+          <b>{{calculationData.selectedService.serviceName}} </b>service from AM
+          Webtech for a period of
+          <b> {{calculationData.weeks}} {{calculationData.weeks === 1 ? "Week" : "Weeks"}} </b>
+          and the total time frame is <b>{{calculationData.timeIndex}}</b> hours.
+          The Hourly rate offered for
+          this contract is <b>{{calculationData.currencies.currencySymbol}}
+            {{calculationData.finalPriceWithDiscount}}</b>.
+        </div><br>
+        <div class="h5">The following proposal lays out the work details including service charges. If you have
+          questions,please feel free to reach out via email or phone.</div>
+        <div class="d-flex justify-content-center my-5 h5"> Thank you!</div>
+        <div class="mt-5 d-flex h5 justify-content-between mobile-align">
+          <div><b> Expiry Date : {{calculationData.expiryDate}}</b></div>
+          <div>{{calculationData.currentUser.userName}} <br>AM Webtech Pvt. Ltd
+            <br>{{calculationData.currentUser.email}}
+          </div>
+        </div>
+      </div>
+      <!-- hourlyWise -->
+
+      <!-- resourcesWise -->
+      <div *ngIf="calculationData.type === calculationType.resources">
+        <div class="h5"><b>Contract Details </b>: This contract is made for hiring of
+          <b>{{calculationData.selectedService.serviceName}} </b>service from AM
+          Webtech for a period of
+          <b> {{calculationData.months}} {{calculationData.months === 1 ? "Month" : "Months"}} </b>
+          and the total selected resources are <b>{{calculationData.resources}}</b> in Number.
+          The monthly rate offered for this contract is <b>{{calculationData.currencies.currencySymbol}}
+            {{calculationData.finalPriceWithDiscount}}</b>
+          / resource.
+        </div>
+        <br>
+        <div class="h5">The following proposal lays out the work details including service charges. If you have
+          questions,please feel free to reach out via email or phone.</div>
+        <div class="d-flex justify-content-center my-5 h5"> Thank you!</div>
+        <div class="mt-5 d-flex h5 justify-content-between mobile-align">
+          <div><b> Expiry Date : {{calculationData.expiryDate}}</b></div>
+          <div>{{calculationData.currentUser.userName}} <br>AM Webtech Pvt. Ltd
+            <br>{{calculationData.currentUser.email}}
+          </div>
+        </div>
+      </div>
+      <!-- resourcesWise -->
+
+      <!-- bundleWise -->
+      <div *ngIf="calculationData.type === calculationType.bundle">
+        <div class="h5"><b>Contract Details </b>: This contract is made for hiring of
+          <b>{{calculationData.selectedService.serviceName}} </b>service Bundles from AM
+          Webtech for a period of
+          <b> {{calculationData.timeFrame.id}} {{calculationData.timeFrame.id === 1 ? "Month" : "Months"}} </b>
+          and the total selected resources are <b>{{calculationData.resources}}</b> in Number.
+          The Final rate offered for this contract is <b>{{calculationData.currencies.currencySymbol}}
+            {{calculationData.finalPriceWithDiscount}}</b>.
+        </div>
+        <br>
+        <div class="h5">The following proposal lays out the work details including service charges. If you have
+          questions,please feel free to reach out via email or phone.</div>
+        <div class="d-flex justify-content-center my-5 h5"> Thank you!</div>
+        <div class="mt-5 d-flex h5 justify-content-between mobile-align">
+          <div><b> Expiry Date : {{calculationData.expiryDate}}</b></div>
+          <div>{{calculationData?.currentUser?.userName}} <br>AM Webtech Pvt. Ltd
+            <br>{{calculationData?.currentUser?.email}}
+          </div>
+        </div>
+      </div>
+      <!-- bundleWise -->
+
+      <!-- packageWise -->
+      <div *ngIf="calculationData.type === calculationType.package">
+        <div class="h5"><b>Contract Details </b>: This contract is made for hiring of
+          <b>{{calculationData.selectedService.serviceName}} </b>service Bundles Packages from AM
+          Webtech for a period of
+          <b> {{calculationData.timeFrame.id}} {{calculationData.timeFrame.id === 1 ? "Month" : "Months"}} </b>.
+          The Final rate offered for this package is <b> essential : {{calculationData.selectedPackage.essential}},
+            professional : {{calculationData.selectedPackage.professional}} and enterprise : {{calculationData.selectedPackage.enterprise}}</b>.
+        </div>
+        <br>
+        <div class="h5">The following proposal laysout the work details including service charges. If you have
+          questions,please feel free to reach out via email or phone.</div>
+        <div class="d-flex justify-content-center my-5 h5"> Thank you!</div>
+        <div class="mt-5 d-flex h5 justify-content-between mobile-align">
+          <div><b> Expiry Date : {{calculationData.expiryDate}}</b></div>
+          <div>{{calculationData?.currentUser?.userName}} <br>AM Webtech Pvt. Ltd
+            <br>{{calculationData?.currentUser?.email}}
+          </div>
+        </div>
+      </div>
+      <!-- packageWise -->
+
+    </div>
+  </div>
+  <img src="assets/img/brand/footer.png" alt="footer"
+    style="width: 100%; left: 0px; right: 0px; bottom: 0px;position: absolute;">
+</div>

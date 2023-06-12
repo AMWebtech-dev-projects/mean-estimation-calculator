@@ -1,0 +1,131 @@
+<div class="d-flex flex-row">
+  <div class="col-12">
+    <h4 class="opacity-50">Manage Regions</h4>
+    <hr />
+  </div>
+</div>
+<div class="container-fluid app-region bg-white py-3 dataDisplaySection">
+  <div class="d-flex justify-content-end mb-3">
+    <div>
+      <button class="btn btn-sm btn-primary ms-3" (click)="showAddEditModal()"><i class="fas fa-plus me-2"></i>Add
+        New</button>
+    </div>
+  </div>
+  <table [dtOptions]="dtOptions" datatable [dtTrigger]="dtTrigger"
+    class="table table-bordered table-hover table-striped">
+    <thead>
+      <tr class="text-nowrap">
+        <th>S.No</th>
+        <th>Region Name</th>
+        <th>Region Factor</th>
+        <th>Created At</th>
+        <th>Status</th>
+        <th class="text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="text-wrap">
+      <tr *ngFor="let region of regionsList; let i=index">
+        <th scope="row">{{i+1}}</th>
+        <td>{{region.regionName}}</td>
+        <td>{{region.regionFactor}}</td>
+        <td>{{region.createdAt | date:'d/M/yyyy'}}</td>
+        <td>
+          <ui-switch (change)="changeRegionStatus(region)" [(ngModel)]="region.status" color="#4285F4"
+            defaultBgColor="#d9d9d9" labelOn="Active" labelOff="Inactive">
+          </ui-switch>
+        </td>
+        <td class="text-center">
+          <div class="d-flex justify-content-center">
+            <button type="button" class="btn btn-sm edit me-1" (click)="showAddEditModal(region)"><i
+                class="far fa-edit"></i></button>
+            <button type="button" class="btn btn-sm delete" (click)="showRegionDeleteModal(region)"><i
+                class="far fa-trash-alt"></i></button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div bsModal #showAddEditRegionModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="myModalLabel" aria-hidden="true" [config]="{backdrop: 'static',  keyboard: false, animated: true}">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{regionsForm?.value?._id ? 'Edit' : 'Add'}} Region</h4>
+        <button type="button" class="close" aria-label="Close" (click)="closeModel()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="regionsForm" role="form" [formGroup]="regionsForm" (ngSubmit)="addRegion()" novalidate>
+        <div class="modal-body">
+          <div class="row row-xs align-items-center mg-b-20">
+            <div class="mb-3">
+              <label for="regionName" class="form-label"> Region Name
+                <sup [class]="checkvalidation('regionName')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="regionName" placeholder="Enter Region Name" name="regionName"
+                characterOnly formControlName="regionName">
+              <p class="alert alert-danger mt-1 mb-0" role="alert"
+                *ngIf="invalidform.regionName.invalid && (invalidform.regionName.dirty || invalidform.regionName.touched)">
+                <span *ngIf="invalidform.regionName.errors.required">Region Name Required.</span>
+                <span *ngIf="invalidform.regionName.errors.minlength">"Region" length must be at least 3 characters
+                  long.</span>
+                <span *ngIf="invalidform.regionName.errors.regionExists">This Region Already Exists, please try another
+                  one.</span>
+              </p>
+            </div>
+            <div class="mb-3">
+              <label for="regionFactor" class="form-label">Region Factor
+                <sup [class]="checkvalidation('regionFactor')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="regionFactor" maxlength="4" numbersOnly
+                placeholder="Enter Region Factor" name="regionFactor" formControlName="regionFactor">
+              <p class="alert alert-danger mt-1 mb-0" role="alert"
+                *ngIf="invalidform.regionFactor.invalid && (invalidform.regionFactor.dirty || invalidform.regionFactor.touched)">
+                <span *ngIf="invalidform.regionFactor.errors.required">Region Name Required.</span>
+                <span *ngIf="invalidform.regionFactor.errors.min || invalidform.regionFactor.errors.max">"Factor" must
+                  be a
+                  number and it should be greater than 0 or
+                  less than equal to
+                  10.
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+        <app-alert></app-alert>
+        <div class="modal-footer border-top-0 justify-content-start">
+          <button type="submit" class="btn btn-primary"
+            [disabled]="!regionsForm.valid">{{regionsForm?.value?._id ? 'Update' : 'Add'}}
+          </button>
+        </div>
+      </form>
+      <!-- <pre [innerHtml]="regionsForm.value | json"></pre> -->
+    </div>
+  </div>
+</div>
+
+<div bsModal #deleteRegionModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+  aria-hidden="true" [config]="{backdrop: 'static', keyboard: false, animated: true}">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"><i class="fa fa-trash"></i> Delete Region</h4>
+        <button type="button" class="close" (click)="closeModel()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h4>Are you sure want to delete this Region?</h4>
+        <p>
+          <b>Region :</b> {{regionsInfo.regionName}} <br />
+        </p>
+      </div>
+      <div class="modal-footer border-top-0 d-flex justify-content-start">
+        <button type="button" class="btn btn-default me-1" (click)="closeModel()">Close</button>
+        <button type="button" class="btn btn-danger" (click)="deleteRegion()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

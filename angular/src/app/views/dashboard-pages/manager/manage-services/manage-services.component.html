@@ -1,0 +1,208 @@
+<div class="d-flex flex-row">
+  <div class="col-12">
+    <h4 class="opacity-50">Manage Services</h4>
+    <hr />
+  </div>
+</div>
+<div class="container-fluid app-region bg-white py-3 dataDisplaySection">
+  <div class="d-flex justify-content-end mb-3">
+    <div>
+      <button class="btn btn-sm btn-primary ms-3" (click)="showAddEditModal()"><i class="fas fa-plus me-2"></i>Add
+        New</button>
+    </div>
+  </div>
+  <table [dtOptions]="dtOptions" datatable [dtTrigger]="dtTrigger"
+    class="table table-bordered table-hover table-striped">
+    <thead>
+      <tr class="text-nowrap">
+        <th>S.No</th>
+        <th>Service Name</th>
+        <th>Expertise</th>
+        <th>Team Size</th>
+        <th>Hourly Price</th>
+        <th>Monthly Price</th>
+        <th>Per Page Price</th>
+        <th>Per Device Price</th>
+        <th>Discount</th>
+        <th>Created At</th>
+        <th>Status</th>
+        <th class="text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="text-wrap">
+      <tr *ngFor="let manageService of manageSList; let i=index">
+        <th scope="row">{{i+1}}</th>
+        <td>{{manageService.serviceName}}</td>
+        <td>{{showExpertiseName(manageService.expertise)}}</td>
+        <td>{{manageService.teamSize}}</td>
+        <td>{{manageService.hourlyPrice}}</td>
+        <td>{{manageService.monthlyPrice}}</td>
+        <td>{{manageService.pagePrice}}</td>
+        <td>{{manageService.devicePrice}}</td>
+        <td>{{manageService.discount}}</td>
+        <td>{{manageService.createdAt | date:'d/M/yyyy'}}</td>
+        <td>
+          <ui-switch (change)="changeServiceStatus(manageService)" [(ngModel)]="manageService.status" color="#4285F4"
+            defaultBgColor="#d9d9d9" labelOn="Active" labelOff="Inactive">
+          </ui-switch>
+        </td>
+        <td class="text-center">
+          <div class="d-flex justify-content-center">
+            <button type="button" class="btn btn-sm edit me-1" (click)="showAddEditModal(manageService)"><i
+                class="far fa-edit"></i></button>
+            <button type="button" class="btn btn-sm delete" (click)="showDeleteModal(manageService)"><i
+                class="far fa-trash-alt"></i></button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- <pre [innerHtml]="manageServicesList | json"> </pre> -->
+
+<div bsModal #addEditManageServiceModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="myModalLabel" aria-hidden="true" [config]="{backdrop: 'static',  keyboard: false, animated: true}">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{manageServicesForm?.value?._id ? 'Edit' : 'Add'}} Service</h4>
+        <button type="button" class="close" aria-label="Close" (click)="closeModel()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="modal-body" id="manageServicesForm" role="form" [formGroup]="manageServicesForm">
+          <div class="row row-xs align-items-center mg-b-20">
+            <div class="mb-3">
+              <label for="serviceName" class="form-label"> Service Name
+                <sup [ngClass]="checkvalidation('serviceName')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="serviceName" maxlength="35" placeholder="Enter Service Name"
+                name="serviceName" characterOnly formControlName="serviceName">
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="invalidForm.serviceName.invalid && (invalidForm.serviceName.dirty ||
+                invalidForm.serviceName.touched)">
+                <span *ngIf="invalidForm.serviceName.errors.required"> Service Name is Required. </span>
+                <span *ngIf="invalidForm.serviceName.errors.minlength"> Minimum length 3 is Required. </span>
+              </p>
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="checkserviceExists">
+                <span> This Service Already Exists, please try another one. </span> </p>
+            </div>
+            <div class="mb-3">
+              <label for="expertise" class="form-label">Expertise
+                <sup [ngClass]="checkvalidation('expertise')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <select id="expertise" class="form-select" name="expertise" formControlName="expertise">
+                <option value="">Choose Expertise</option>
+                <option *ngFor="let expertise of expertiseList; let i=index" [ngValue]="expertise.value">
+                  {{expertise.label}}
+                </option>
+              </select>
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="invalidForm.expertise.invalid && (invalidForm.expertise.dirty ||
+                invalidForm.expertise.touched)">
+                <span *ngIf="invalidForm.expertise.errors.required"> Expertise is Required. </span>
+              </p>
+            </div>
+            <div class="mb-3">
+              <label for="teamSize" class="form-label">Team Size
+                <sup [ngClass]="checkvalidation('teamSize')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="teamSize" numbersOnly placeholder="Enter Team Size"
+                name="teamSize" formControlName="teamSize">
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="invalidForm.teamSize.invalid && (invalidForm.teamSize.dirty ||
+                invalidForm.teamSize.touched)">
+                <span *ngIf="invalidForm.teamSize.errors.required"> Team Size is Required. </span>
+              </p>
+            </div>
+            <div class="mb-3">
+              <label for="hourlyPrice" class="form-label">Hourly Price
+                <sup [ngClass]="checkvalidation('hourlyPrice')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="hourlyPrice" numbersOnly placeholder="Enter Hourly Price"
+                name="hourlyPrice" formControlName="hourlyPrice">
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="invalidForm.hourlyPrice.invalid && (invalidForm.hourlyPrice.dirty ||
+                invalidForm.hourlyPrice.touched)">
+                <span *ngIf="invalidForm.hourlyPrice.errors.required"> Hourly Price is Required. </span>
+              </p>
+            </div>
+            <div class="mb-3">
+              <label for="monthlyPrice" class="form-label">Monthly Price
+                <sup [ngClass]="checkvalidation('monthlyPrice')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="monthlyPrice" numbersOnly placeholder="Enter Monthly Price"
+                name="monthlyPrice" formControlName="monthlyPrice">
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="invalidForm.monthlyPrice.invalid && (invalidForm.monthlyPrice.dirty ||
+                invalidForm.monthlyPrice.touched)">
+                <span *ngIf="invalidForm.monthlyPrice.errors.required"> Monthly Price is Required. </span>
+              </p>
+            </div>
+            <div class="mb-3">
+              <label for="pagePrice" class="form-label">Per Page Price
+                <sup [ngClass]="checkvalidation('pagePrice')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="pagePrice" numbersOnly placeholder="Enter Price"
+                name="pagePrice" formControlName="pagePrice">
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="invalidForm.pagePrice.invalid && (invalidForm.pagePrice.dirty ||
+                invalidForm.pagePrice.touched)">
+                <span *ngIf="invalidForm.pagePrice.errors.required"> Page Price is Required. </span>
+              </p>
+            </div>
+            <div class="mb-3">
+              <label for="devicePrice" class="form-label">Per Device Price
+                <sup [ngClass]="checkvalidation('devicePrice')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="devicePrice" numbersOnly placeholder="Enter Device Price"
+                name="devicePrice" formControlName="devicePrice">
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="invalidForm.devicePrice.invalid && (invalidForm.devicePrice.dirty ||
+                invalidForm.devicePrice.touched)">
+                <span *ngIf="invalidForm.devicePrice.errors.required"> Eevice Price is Required. </span>
+              </p>
+            </div>
+            <div class="mb-3">
+              <label for="discount" class="form-label">Discount in %
+                <sup [ngClass]="checkvalidation('discount')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="discount" numbersOnly placeholder="Enter Discount"
+                name="discount" formControlName="discount">
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="invalidForm.discount.invalid && (invalidForm.discount.dirty ||
+                invalidForm.discount.touched)">
+                <span *ngIf="invalidForm.discount.errors.required"> Eevice Price is Required. </span>
+              </p>
+            </div>
+          </div>
+        </form>
+      </div>
+      <app-alert></app-alert>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="addService()" [disabled]="manageServicesForm.invalid">{{manageServicesForm?.value?._id ? 'Update' :
+            'Add'}}
+        </button>
+        <!-- <pre [innerHtml]="manageServicesForm.value | json"> </pre> -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div bsModal #deleteManageServiceModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="myModalLabel" aria-hidden="true" [config]="{backdrop: 'static', keyboard: false, animated: true}">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"><i class="fa fa-trash"></i> Delete Service</h4>
+        <button type="button" class="close" (click)="closeModel()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h4>Are you sure want to delete this Service?</h4>
+        <p>
+          <b>Service :</b> {{manageServicesInfo.serviceName}} <br />
+        </p>
+      </div>
+      <div class="modal-footer border-top-0 d-flex justify-content-start">
+        <button type="button" class="btn btn-default me-1" (click)="closeModel()">Close</button>
+        <button type="button" class="btn btn-danger" (click)="deleteService()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,141 @@
+<div class="d-flex flex-row">
+  <div class="col-12">
+    <h4 class="opacity-50">Manage Currency</h4>
+    <hr />
+  </div>
+</div>
+<div class="container-fluid app-currency bg-white py-3 dataDisplaySection">
+  <div class="d-flex justify-content-end mb-3">
+    <div>
+      <button class="btn btn-sm btn-primary ms-3" (click)="showAddEditModal()"><i class="fas fa-plus me-2"></i>Add
+        New</button>
+    </div>
+  </div>
+
+  <table [dtOptions]="dtOptions" datatable [dtTrigger]="dtTrigger"
+    class="table table-bordered table-hover table-striped">
+    <thead>
+      <tr class="text-nowrap">
+        <th>S.No</th>
+        <th>Currency Name</th>
+        <th>Currency Factor</th>
+        <th>Currency Symbol</th>
+        <th>Created At</th>
+        <th>Status</th>
+        <th class="text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="text-wrap">
+      <tr *ngFor="let currency of currenciesList; let i=index">
+        <th scope="row">{{i+1}}</th>
+        <td>{{currency.currencyName}}</td>
+        <td>{{currency.currencyFactor}}</td>
+        <td>{{currency.currencySymbol}}</td>
+        <td>{{currency.createdAt | date:'d/M/yyyy'}}</td>
+        <td>
+          <ui-switch (change)="changeCurrencyStatus(currency)" [(ngModel)]="currency.status" color="#4285F4"
+            defaultBgColor="#d9d9d9" labelOn="Active" labelOff="Inactive">
+          </ui-switch>
+        </td>
+        <td class="text-center">
+          <div class="d-flex justify-content-center">
+            <button type="button" class="btn btn-sm edit me-1" (click)="showAddEditModal(currency)"><i
+                class="far fa-edit"></i></button>
+            <button type="button" class="btn btn-sm delete" (click)="showCurrencyDeleteModal(currency)"><i
+                class="far fa-trash-alt"></i></button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div bsModal #showAddEditCurrencyModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="myModalLabel" aria-hidden="true" [config]="{backdrop: 'static',  keyboard: false, animated: true}">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{currenciesForm?.value?._id ? 'Edit' : 'Add'}} Currency</h4>
+        <button type="button" class="close" aria-label="Close" (click)="closeModel()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="currenciesForm" role="form" [formGroup]="currenciesForm" (ngSubmit)="addCurrency()">
+        <div class="modal-body">
+          <div class="row row-xs align-items-center mg-b-20">
+            <div class="mb-3">
+              <label for="currencyName" class="form-label"> Currency Name
+                <sup [ngClass]="checkvalidation('currencyName')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="currencyName" placeholder="Enter Currency Name"
+                name="currencyName" characterOnly formControlName="currencyName">
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="invalidForm.currencyName.invalid && (invalidForm.currencyName.touched ||
+                invalidForm.currencyName.dirty)">
+                <span *ngIf="invalidForm.currencyName.errors.required"> Currency Name Required. </span>
+                <span *ngIf="invalidForm.currencyName.errors.minlength"> Currency min length should be 3. </span>
+              </p>
+            </div>
+            <div class="mb-3">
+              <label for="currencyFactor" class="form-label">Currency Factor
+                <sup [ngClass]="checkvalidation('currencyFactor')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="currencyFactor" maxlength="4" numbersOnly
+                placeholder="Enter Currency Factor" name="currencyFactor" formControlName="currencyFactor">
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="invalidForm.currencyFactor.invalid && (invalidForm.currencyFactor.touched ||
+                  invalidForm.currencyFactor.dirty)">
+                <span *ngIf="invalidForm.currencyFactor.errors.required"> Currency Factor Required. </span>
+                <span *ngIf="invalidForm.currencyFactor.errors.min || invalidForm.currencyFactor.errors.max"> must be a
+                  number and it should be greater than 0 or less than equal to
+                  1000. </span>
+              </p>
+            </div>
+            <div class="mb-3">
+              <label for="currencySymbol" class="form-label"> Currency Symbol
+                <sup [ngClass]="checkvalidation('currencySymbol')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="currencySymbol" placeholder="Enter Currency Symbol"
+                name="currencySymbol" formControlName="currencySymbol">
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="invalidForm.currencySymbol.invalid && (invalidForm.currencySymbol.touched ||
+                  invalidForm.currencySymbol.dirty)">
+                <span *ngIf="invalidForm.currencySymbol.errors.required"> Currency Factor Required. </span>
+                <span *ngIf="invalidForm.currencySymbol.errors.currencySymbolExists">
+                  This Currency Symbol Already Exists, please try another one. </span>
+              </p>
+            </div>
+          </div>
+        </div>
+        <app-alert></app-alert>
+        <div class="modal-footer border-top-0 justify-content-start">
+          <button type="submit" class="btn btn-primary"
+            [disabled]="!currenciesForm.valid">{{currenciesForm?.value?._id ? 'Update' : 'Add'}}
+          </button>
+        </div>
+      </form>
+      <!-- <pre [innerHtml]="currenciesForm.value | json"></pre> -->
+    </div>
+  </div>
+</div>
+
+<div bsModal #deleteCurrencyModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="myModalLabel" aria-hidden="true" [config]="{backdrop: 'static', keyboard: false, animated: true}">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"><i class="fa fa-trash"></i> Delete Currency</h4>
+        <button type="button" class="close" (click)="closeModel()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h4>Are you sure want to delete this Currency?</h4>
+        <p>
+          <b>Currency :</b> {{currenciesInfo.currencyName}} <br />
+        </p>
+      </div>
+      <div class="modal-footer border-top-0 d-flex justify-content-start">
+        <button type="button" class="btn btn-default me-1" (click)="closeModel()">Close</button>
+        <button type="button" class="btn btn-danger" (click)="deleteCurrency()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

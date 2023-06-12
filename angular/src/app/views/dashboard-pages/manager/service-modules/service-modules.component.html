@@ -1,0 +1,147 @@
+<div class="d-flex flex-row">
+  <div class="col-12">
+    <h4 class="opacity-50">
+      Manage Service Modules
+    </h4>
+    <hr />
+  </div>
+</div>
+<div class="container-fluid app-region bg-white py-3 dataDisplaySection">
+  <div class="d-flex justify-content-end mb-3">
+    <div>
+      <button class="btn btn-sm btn-primary ms-3" (click)="showAddEditModal()"><i class="fas fa-plus me-2"></i>Add
+        New</button>
+    </div>
+  </div>
+
+  <table [dtOptions]="dtOptions" datatable [dtTrigger]="dtTrigger"
+    class="table table-bordered table-hover table-striped" id="serviceModule">
+    <thead>
+      <tr class="text-nowrap">
+        <th>S.No</th>
+        <th>Service Module</th>
+        <th>Required(Hrs.)</th>
+        <th>Summary</th>
+        <th>Created At</th>
+        <th>Status</th>
+        <th class="text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody class="text-wrap">
+      <tr *ngFor="let modules of serviceModulesList; let i=index">
+        <th scope="row">{{i+1}}</th>
+        <td>{{modules.serviceModule}}</td>
+        <td>{{modules.timeRequired}}</td>
+        <td>{{modules.summary}}</td>
+        <td>{{modules.createdAt | date:'d/M/yyyy'}}</td>
+        <td>
+          <ui-switch (change)="changeServiceStatus(modules)" [(ngModel)]="modules.status" color="#4285F4"
+            defaultBgColor="#d9d9d9" labelOn="Active" labelOff="Inactive">
+          </ui-switch>
+        </td>
+        <td class="text-center">
+          <div class="d-flex justify-content-center">
+            <button type="button" class="btn btn-sm edit me-1" (click)="showAddEditModal(modules)"><i
+                class="far fa-edit"></i></button>
+            <button type="button" class="btn btn-sm delete" (click)="showDeleteModal(modules)"><i
+                class="far fa-trash-alt"></i></button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div bsModal #addEditServiceModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="myModalLabel" aria-hidden="true" [config]="{backdrop: 'static',  keyboard: false, animated: true}">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{serviceModulesform?.value?._id ? 'Edit' : 'Add'}} Service Module</h4>
+        <button type="button" class="close" aria-label="Close" (click)="closeModel()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form id="serviceModulesform" role="form" [formGroup]="serviceModulesform" (ngSubmit)="addService()">
+        <div class="modal-body">
+          <div class="row row-xs align-items-center mg-b-20">
+            <div class="mb-3">
+              <label for="serviceModule" class="form-label"> Service Module
+                <sup [ngClass]="checkvalidation('serviceModule')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="serviceModule" maxlength="35"
+                placeholder="Enter Service Module" name="serviceModule" characterOnly formControlName="serviceModule">
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="invalidForm.serviceModule.invalid && (invalidForm.serviceModule.dirty ||
+                invalidForm.serviceModule.touched)">
+                <span *ngIf="invalidForm.serviceModule.errors.required"> Service Module is Required. </span>
+                <span *ngIf="invalidForm.serviceModule.errors.minlength">Service Module Minimum length should be 3.
+                </span>
+              </p>
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="checkserviceExists">
+                This Service Module Already Exists, please try another one.
+              </p>
+            </div>
+            <div class="mb-3">
+              <label for="timeRequired" class="form-label"> Time Required in Hrs
+                <sup [ngClass]="checkvalidation('timeRequired')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <input type="text" class="form-control" id="timeRequired" placeholder="Enter Required Time"
+                name="timeRequired" maxlength="4" numbersOnly formControlName="timeRequired">
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="invalidForm.timeRequired.invalid && (invalidForm.timeRequired.dirty ||
+                invalidForm.timeRequired.touched)">
+                <span *ngIf="invalidForm.timeRequired.errors.required"> Time is Required. </span>
+                <span *ngIf="invalidForm.timeRequired.errors.min"> Time should be 2 Hrs minimum. </span>
+              </p>
+            </div>
+
+            <div class="mb-3">
+              <label for="summary" class="form-label">Summary
+                <sup [ngClass]="checkvalidation('summary')"><i class="fas fa-star fa-xs"></i></sup>
+              </label>
+              <textarea class="form-control" id="summary" rows="5" placeholder="Enter Summary"
+                formControlName="summary"></textarea>
+              <p class="alert alert-danger mt-1 mb-0" role="alert" *ngIf="invalidForm.summary.invalid && (invalidForm.summary.dirty ||
+                invalidForm.summary.touched)">
+                <span *ngIf="invalidForm.summary.errors.required"> Summary is Required. </span>
+                <span *ngIf="invalidForm.summary.errors.minlength"> Summary Length should be 10 minimum. </span>
+                <span *ngIf="invalidForm.summary.errors.maxlength"> Summary Length should be max 200 minimum. </span>
+              </p>
+            </div>
+
+          </div>
+        </div>
+        <app-alert></app-alert>
+        <div class="modal-footer border-top-0 justify-content-start">
+          <button type="submit" class="btn btn-primary" [disabled]="serviceModulesform.invalid">{{serviceModulesform?.value?._id ? 'Update' :
+            'Add'}}
+          </button>
+        </div>
+      </form>
+      <!-- <pre [innerHtml]="serviceModulesInfo | json"></pre> -->
+    </div>
+  </div>
+</div>
+
+<div bsModal #deleteServiceModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="myModalLabel" aria-hidden="true" [config]="{backdrop: 'static', keyboard: false, animated: true}">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"><i class="fa fa-trash"></i> Delete Service Module</h4>
+        <button type="button" class="close" (click)="closeModel()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h4>Are you sure want to delete this Service Module?</h4>
+        <p>
+          <b>Service Module :</b> {{serviceModulesInfo.serviceModule}} <br />
+        </p>
+      </div>
+      <div class="modal-footer border-top-0 d-flex justify-content-start">
+        <button type="button" class="btn btn-default me-1" (click)="closeModel()">Close</button>
+        <button type="button" class="btn btn-danger" (click)="deleteService()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>

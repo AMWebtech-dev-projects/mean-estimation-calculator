@@ -1,0 +1,83 @@
+<div *ngIf="!createPackageshow">
+  <div class="d-flex flex-row">
+    <div class="col-12">
+      <h4 class="opacity-50">
+        <h4>Manage Service Packages</h4>
+      </h4>
+      <hr />
+    </div>
+  </div>
+  <div class="container-fluid app-region bg-white py-3 dataDisplaySection">
+    <div class="d-flex justify-content-end mb-3">
+      <div>
+        <button class="btn btn-sm btn-primary ms-3" (click)="createPackage()"><i class="fas fa-plus me-2"></i>Add
+          New</button>
+      </div>
+    </div>
+    <table [dtOptions]="dtOptions" datatable [dtTrigger]="dtTrigger"
+      class="table table-bordered table-hover table-striped">
+      <thead>
+        <tr class="text-nowrap">
+          <th>S.No</th>
+          <th>Package Name</th>
+          <th>Service Name</th>
+          <th>Essential</th>
+          <th>Professional</th>
+          <th>Enterprise</th>
+          <th>Created At</th>
+          <th>Status</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="text-wrap">
+        <tr *ngFor="let package of servicePackagesList; let i=index">
+          <th scope="row">{{i+1}}</th>
+          <td>{{package.servicePackage}}</td>
+          <td>{{showServiceName(package.serviceId)}}</td>
+          <td>{{package.essential}}</td>
+          <td>{{package.professional}}</td>
+          <td>{{package.enterprise}}</td>
+          <td>{{package.createdAt | date:'d/M/yyyy'}}</td>
+          <td>
+            <ui-switch (change)="changeServiceStatus(package)" [(ngModel)]="package.status" color="#4285F4"
+              defaultBgColor="#d9d9d9" labelOn="Active" labelOff="Inactive">
+            </ui-switch>
+          </td>
+          <td class="text-center">
+            <div class="d-flex justify-content-center">
+              <button type="button" class="btn btn-sm delete" (click)="showDeleteModal(package)"><i
+                  class="far fa-trash-alt"></i></button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div bsModal #deletePackageModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+    aria-labelledby="myModalLabel" aria-hidden="true" [config]="{backdrop: 'static', keyboard: false, animated: true}">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title"><i class="fa fa-trash"></i> Delete Service</h4>
+          <button type="button" class="close" (click)="closeModel()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h4>Are you sure want to delete this Service Package?</h4>
+          <p>
+            <b>Service Package :</b> {{servicePackagesInfo.servicePackage}} <br />
+          </p>
+        </div>
+        <div class="modal-footer border-top-0 d-flex justify-content-start">
+          <button type="button" class="btn btn-default me-1" (click)="closeModel()">Close</button>
+          <button type="button" class="btn btn-danger" (click)="deleteService()">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="createPackageshow">
+  <app-create-service-package></app-create-service-package>
+</div>

@@ -1,0 +1,139 @@
+<div class="d-flex flex-row">
+  <div class="col-12">
+    <h4 class="opacity-50">
+      <h4>Hourly Wise Calculation</h4>
+    </h4>
+    <hr />
+  </div>
+</div>
+<div class="container-fluid bg-white py-3 dataDisplaySection">
+  <div class="row g-3 mb-3">
+    <div class="col-lg-6">
+      <div class="mb-3">
+        <label for="countryId" class="form-label">Country
+          <sup [ngClass]="hourlyInfo.regionId ? 'text-primary' : 'text-danger'"><i class="fas fa-star fa-xs"></i></sup>
+        </label>
+        <select id="countryId" class="form-select" name="countryId" [(ngModel)]="hourlyInfo.regionId"
+          (ngModelChange)="getRegionDetail(hourlyInfo.regionId)">
+          <option value="">Select Region</option>
+          <option *ngFor="let subRegions of subRegionsList; let i=index" [ngValue]="subRegions._id">
+            {{subRegions.countryName}}
+          </option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="serviceId" class="form-label">Choose Service
+          <sup [ngClass]="hourlyInfo.selectedService ? 'text-primary' : 'text-danger'"><i
+              class="fas fa-star fa-xs"></i></sup>
+        </label>
+        <select id="selectedService" class="form-select" name="selectedService" [(ngModel)]="hourlyInfo.serviceId"
+          (ngModelChange)="calculation($event)">
+          <option value="">Select Service</option>
+          <option *ngFor="let manageServices of manageServicesList; let i=index" [value]="manageServices._id">
+            {{manageServices.serviceName}}
+          </option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Weekly Hours : {{hourlyInfo.hourly}}
+        </label>
+        <ngx-slider [(ngModel)]="hourlyInfo.hourly" [options]="optionsHourly" (ngModelChange)="calculation()">
+        </ngx-slider>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Time Frame in Weeks : {{hourlyInfo.weeks}}
+        </label>
+        <ngx-slider [(ngModel)]="hourlyInfo.weeks" [options]="optionsWeekly" (ngModelChange)="calculation()">
+        </ngx-slider>
+      </div>
+      <!-- <pre *ngIf="hourlyInfo" [innerHtml]="hourlyInfo | json"></pre> -->
+    </div>
+    <div class="align-items-start col-lg-6">
+      <app-estimator-card [calculationData]="hourlyInfo" (callParentCalculation)="calculation()"
+        (calculationModal)="calculationModal()">
+      </app-estimator-card>
+    </div>
+  </div>
+</div>
+
+<div bsModal #saveCalculationModal="bs-modal" class="modal fade" tabindex="-1" role="dialog"
+  aria-labelledby="myModalLabel" aria-hidden="true" [config]="{backdrop: 'static',  keyboard: false, animated: true}">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Save Calculation</h4>
+        <button type="button" class="close" aria-label="Close" (click)="closeModel()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row row-xs align-items-center mg-b-20">
+          <div class="mb-3">
+            <label for="projectName" class="form-label"> Project Name
+              <sup [ngClass]="hourlyInfo.projectName ? 'text-primary' : 'text-danger'"><i
+                  class="fas fa-star fa-xs"></i></sup>
+            </label>
+            <input type="text" class="form-control" id="projectName" placeholder="Type Here" name="projectName"
+              characterOnly [(ngModel)]="hourlyInfo.projectName">
+          </div>
+          <div class="mb-3">
+            <label for="prospectName" class="form-label">Prospect Name
+              <sup [ngClass]="hourlyInfo.prospectName ? 'text-primary' : 'text-danger'"><i
+                  class="fas fa-star fa-xs"></i></sup>
+            </label>
+            <input type="text" class="form-control" id="prospectName" placeholder="Type Here" name="prospectName"
+              [(ngModel)]="hourlyInfo.prospectName">
+          </div>
+          <div class="mb-3">
+            <label for="tags" class="form-label"> Tags
+              <sup [ngClass]="hourlyInfo.tags ? 'text-primary' : 'text-danger'"><i class="fas fa-star fa-xs"></i></sup>
+            </label>
+            <input type="text" class="form-control" id="tags" placeholder="Type Tags Here" name="tags" characterOnly
+              [(ngModel)]="hourlyInfo.tags">
+          </div>
+        </div>
+        <div class="row">
+          <label for="expiryDate" class="col-auto col-form-label">Expiry Date
+            <sup [ngClass]="hourlyInfo.expiryDate ? 'text-primary' : 'text-danger'"><i
+                class="fas fa-star fa-xs"></i></sup>
+          </label>
+          <div class="col-auto">
+            <div class="input-group">
+              <input type="text" class="form-control" id="expiryDate" #dp="bsDatepicker" name="expiryDate"
+                autocomplete="off" bsDatepicker
+                [bsConfig]="{ isAnimated: false, dateInputFormat: 'DD/MM/YYYY', showWeekNumbers: false , adaptivePosition: true }"
+                placeholder="Select Date" [(ngModel)]="hourlyInfo.expiryDate" [minDate]="DateRange.minDate"
+                [maxDate]="DateRange.maxDate">
+              <span class="input-group-text" (click)="dp.toggle()">
+                <i class="icon-calendar"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <app-alert></app-alert>
+      <div class="modal-footer border-top-0 justify-content-start">
+        <button type="submit" class="btn btn-primary" (click)="showCalculationInPdf()">Enter
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div bsModal #estimatorPdfModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+  aria-hidden="true" [config]="{backdrop: 'static',  keyboard: false, animated: true}">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-body" style="overflow: auto; max-height: 555px;">
+        <app-estimator-pdf [calculationData]="hourlyInfo"></app-estimator-pdf>
+      </div>
+      <app-alert></app-alert>
+      <div class="modal-footer border-top-0 justify-content-center">
+        <button type="submit" class="btn btn-primary" (click)="downloadAsPDF()">Save PDF
+        </button>
+        <button type="submit" class="btn btn-primary" (click)="closeModel()">cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

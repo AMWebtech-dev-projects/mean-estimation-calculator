@@ -1,0 +1,10 @@
+.table>thead {
+  vertical-align: top;
+}
+
+input[disabled],
+select[disabled],
+button[disabled] {
+  cursor: no-drop;
+  pointer-events: all !important;
+}
