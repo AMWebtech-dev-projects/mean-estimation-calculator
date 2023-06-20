@@ -16,10 +16,5 @@ export const environment: any = {
     userRole: 2, // 2=user
   },
   calculationType: {
-    hourly: 'hourly',
-    resources: 'resources',
-    bundle: 'bundle',
-    package: 'package',
-    module: 'module',
   },
 };
